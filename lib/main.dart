@@ -1,19 +1,107 @@
 import 'package:flutter/material.dart';
-import 'package:minggu3/layout/home_page.dart';
+import 'package:flutter/services.dart';
+import 'package:minggu3/widget/dropdown.dart';
+import 'package:minggu3/widget/input.dart';
+import 'package:minggu3/widget/konversi.dart';
+import 'package:minggu3/widget/result.dart';
+import 'package:minggu3/widget/riwayat.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
+class MyApp extends StatefulWidget {
   // This widget is the root of your application.
   @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  TextEditingController etInput = TextEditingController();
+
+  // Dynamic variable
+  double _inputUser = 0;
+  double _kelvin = 0;
+  double _reamur = 0;
+  double _result = 0;
+  String _selectedDropdown = "Kelvin";
+  final _listSatuanSuhu = ["Kelvin", "Reamur"];
+
+  List<String> listHasil = [];
+
+  _onChangeDropdown(String value) {
+    setState(() {
+      _selectedDropdown = value;
+    });
+  }
+
+  void _konversi() {
+    setState(() {
+      if (etInput.text.isNotEmpty) {
+        _inputUser = double.parse(etInput.text);
+        switch (_selectedDropdown) {
+          case "Kelvin":
+            _result = _inputUser + 273;
+            listHasil.add("Kelvin : $_result");
+            break;
+          case "Reamur":
+            _result = _inputUser * 4 / 5;
+            listHasil.add("Reamur : $_result");
+            break;
+          default:
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Konversi Suhu - (2031710176 - PRIESCA LEYLYA SYAFITRI)'),
+        ),
+        body: Container(
+          margin: EdgeInsets.all(8),
+          child: Column(
+            children: [
+              InputSuhu(etInput: etInput),
+              Dropdown(
+                  selectedDropdown: _selectedDropdown,
+                  listSatuanSuhu: _listSatuanSuhu,
+                  onChangedDropdown: _onChangeDropdown),
+              Container(
+                margin: EdgeInsets.only(top: 20, bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Result(
+                      result: _result,
+                    ),
+                  ],
+                ),
+              ),
+              Convert(
+                konversi: _konversi,
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 10, bottom: 10),
+                child: Text(
+                  "Riwayat Konversi",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              RiwayatKonversi(listHasil: listHasil),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
